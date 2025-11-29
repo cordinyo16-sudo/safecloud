@@ -1,0 +1,22 @@
+{
+  "name": "safecloud",
+  "version": "1.0.0",
+  "description": "Room-based online status system - users only appear online when in the same room",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test server/roomManager.test.js"
+  },
+  "keywords": [
+    "chat",
+    "rooms",
+    "online-status",
+    "websocket"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
