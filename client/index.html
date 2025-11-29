@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeCloud - Oda Bazlı Çevrim İçi Durumu</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #444;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #e74c3c;
+    }
+    
+    .status-dot.online {
+      background: #27ae60;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .online-users {
+      margin-top: 20px;
+    }
+    
+    .online-users h3 {
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .user-count {
+      background: #667eea;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    
+    .user-list {
+      list-style: none;
+    }
+    
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .info-box {
+      background: #e8f4fd;
+      border-left: 4px solid #667eea;
+      padding: 12px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+    
+    .info-box p {
+      color: #333;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .log {
+      background: #1a1a2e;
+      color: #0f0;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+    
+    .log-entry {
+      margin-bottom: 4px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Login Card - Shown when not in a room -->
+    <div id="loginCard" class="card">
+      <h1>🔒 SafeCloud</h1>
+      <p class="subtitle">Oda Bazlı Çevrim İçi Durum Sistemi</p>
+      
+      <div class="info-box">
+        <p>
+          <strong>📋 Nasıl Çalışır:</strong><br>
+          Kullanıcılar bağlandıklarında <strong>çevrim içi görünmezler</strong>. 
+          Sadece aynı odada bulunan kullanıcılar birbirlerini çevrim içi olarak görebilir.
+        </p>
+      </div>
+      
+      <div class="form-group">
+        <label for="userName">Kullanıcı Adı</label>
+        <input type="text" id="userName" placeholder="Adınızı girin">
+      </div>
+      
+      <div class="form-group">
+        <label for="roomSelect">Oda Seçin</label>
+        <select id="roomSelect">
+          <option value="room-1">Oda 1 - Genel Sohbet</option>
+          <option value="room-2">Oda 2 - Teknoloji</option>
+          <option value="room-3">Oda 3 - Müzik</option>
+          <option value="room-4">Oda 4 - Oyun</option>
+        </select>
+      </div>
+      
+      <button id="joinBtn" class="btn-primary">Odaya Katıl</button>
+    </div>
+    
+    <!-- Room Card - Shown when in a room -->
+    <div id="roomCard" class="card hidden">
+      <h1 id="roomTitle">Oda</h1>
+      
+      <div class="status-indicator">
+        <div class="status-dot online"></div>
+        <span>Bu odada çevrim içisiniz</span>
+      </div>
+      
+      <div class="info-box">
+        <p>
+          <strong>🔔 Not:</strong> Sadece bu odadaki kullanıcılar sizi çevrim içi olarak görebilir. 
+          Diğer odalardaki kullanıcılar sizi göremez.
+        </p>
+      </div>
+      
+      <div class="online-users">
+        <h3>
+          👥 Çevrim İçi Kullanıcılar
+          <span id="userCount" class="user-count">0</span>
+        </h3>
+        <ul id="userList" class="user-list">
+          <!-- Users will be listed here -->
+        </ul>
+      </div>
+      
+      <button id="leaveBtn" class="btn-danger" style="margin-top: 20px;">Odadan Ayrıl</button>
+      
+      <div class="log" id="logArea">
+        <div class="log-entry">Sistem logları burada görünecek...</div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    
+    // DOM Elements
+    const loginCard = document.getElementById('loginCard');
+    const roomCard = document.getElementById('roomCard');
+    const userNameInput = document.getElementById('userName');
+    const roomSelect = document.getElementById('roomSelect');
+    const joinBtn = document.getElementById('joinBtn');
+    const leaveBtn = document.getElementById('leaveBtn');
+    const roomTitle = document.getElementById('roomTitle');
+    const userList = document.getElementById('userList');
+    const userCount = document.getElementById('userCount');
+    const logArea = document.getElementById('logArea');
+    
+    let currentUserId = null;
+    let currentUserName = null;
+    let currentRoom = null;
+    
+    // Helper function to log messages
+    function log(message) {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      const time = new Date().toLocaleTimeString();
+      entry.textContent = `[${time}] ${message}`;
+      logArea.appendChild(entry);
+      logArea.scrollTop = logArea.scrollHeight;
+    }
+    
+    // Generate a unique user ID using crypto API for better randomness
+    function generateUserId() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return 'user-' + crypto.randomUUID();
+      }
+      // Fallback for older browsers
+      return 'user-' + Math.random().toString(36).substring(2, 11);
+    }
+    
+    // Join room button click
+    joinBtn.addEventListener('click', () => {
+      const userName = userNameInput.value.trim();
+      const roomId = roomSelect.value;
+      
+      if (!userName) {
+        alert('Lütfen bir kullanıcı adı girin!');
+        return;
+      }
+      
+      currentUserId = generateUserId();
+      currentUserName = userName;
+      currentRoom = roomId;
+      
+      // Send join room event to server
+      socket.emit('joinRoom', {
+        roomId: roomId,
+        userId: currentUserId,
+        userName: userName
+      });
+      
+      // Update UI
+      loginCard.classList.add('hidden');
+      roomCard.classList.remove('hidden');
+      roomTitle.textContent = '🚪 ' + roomSelect.options[roomSelect.selectedIndex].text;
+      
+      log(`"${roomId}" odasına katıldınız`);
+      log('Sadece bu odadaki kullanıcılar sizi görebilir');
+    });
+    
+    // Leave room button click
+    leaveBtn.addEventListener('click', () => {
+      socket.emit('leaveRoom');
+      
+      // Update UI
+      roomCard.classList.add('hidden');
+      loginCard.classList.remove('hidden');
+      userList.innerHTML = '';
+      logArea.innerHTML = '<div class="log-entry">Sistem logları burada görünecek...</div>';
+      
+      currentRoom = null;
+      currentUserId = null;
+      currentUserName = null;
+    });
+    
+    // Receive online users list
+    socket.on('onlineUsers', (data) => {
+      if (data.roomId === currentRoom) {
+        userCount.textContent = data.users.length;
+        userList.innerHTML = '';
+        
+        data.users.forEach(user => {
+          const li = document.createElement('li');
+          li.className = 'user-item';
+          li.innerHTML = `
+            <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+            <span>${user.name}${user.id === currentUserId ? ' (sen)' : ''}</span>
+          `;
+          userList.appendChild(li);
+        });
+        
+        log(`Çevrim içi kullanıcı sayısı: ${data.users.length}`);
+      }
+    });
+    
+    // User joined notification
+    socket.on('userJoined', (data) => {
+      if (data.roomId === currentRoom) {
+        log(`✅ "${data.userName}" odaya katıldı`);
+      }
+    });
+    
+    // User left notification
+    socket.on('userLeft', (data) => {
+      if (data.roomId === currentRoom) {
+        log('👋 Bir kullanıcı odadan ayrıldı');
+      }
+    });
+    
+    // Connection established
+    socket.on('connect', () => {
+      console.log('Sunucuya bağlanıldı');
+      // Note: User is NOT online yet - they need to join a room first!
+    });
+    
+    // Disconnection
+    socket.on('disconnect', () => {
+      console.log('Sunucu bağlantısı kesildi');
+    });
+  </script>
+</body>
+</html>
